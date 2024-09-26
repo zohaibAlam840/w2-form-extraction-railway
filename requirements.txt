@@ -1,0 +1,6 @@
+fastapi==0.95.2          # FastAPI framework
+uvicorn==0.23.1         # ASGI server for running FastAPI
+Pillow==9.5.0           # Pillow for image processing
+requests==2.31.0        # Requests library for making HTTP requests
+numpy==1.24.3           # NumPy for numerical operations (if needed)
+python-multipart==0.0.6  # To handle multipart file uploads
