@@ -1,0 +1,67 @@
+{
+    "Traditional W-2": {
+      "dimensions": { "width": 1100, "height": 701 },
+      "fields": {
+        "Employee\"s social security number": [235.5, 1.5, 261, 48],
+        "OMB No": [497.5, 2.5, 597, 48],
+        "Employer EIN": [0.5, 49.5, 598, 50],
+        "Wages, tips, other compensations": [598.5, 49.5, 249, 49],
+        "Federal income tax withheld": [848.5, 49.5, 246, 49],
+        "Social security wages": [598.5, 99.5, 249, 49],
+        "Social security tax withheld": [848.5, 99.5, 246, 49],
+        "Medical wages and tips": [598.5, 149.5, 249, 49],
+        "Medicare tax withheld": [848.5, 149.5, 246, 49],
+        "Social security tips": [598.5, 197.5, 249, 49],
+        "Allocated tips": [848.5, 197.5, 246, 49],
+        "Dependent care benefits": [848.5, 247.5, 246, 49],
+        "12a": [848.5, 296.5, 246, 47],
+        "12b": [848.5, 343.5, 246, 49],
+        "Nonqualified plans": [599.5, 294.5, 249, 49],
+        "12c": [848.5, 392.5, 246, 49],
+        "12d": [848.5, 441.5, 246, 49],
+        "Employer\"s name, address, and zipcode": [0.5, 99.5, 598, 147],
+        "Control number": [0.5, 246.5, 599, 48],
+        "Employee\"s first name and initial, last name": [0.5, 294.5, 600, 220],
+        "Employer\"s id number": [0.5, 514.5, 322, 46],
+        "State wages, tips": [322.5, 514.5, 174, 48],
+        "State income tax": [496.5, 514.5, 161, 48],
+        "Local wages, tips": [656.5, 514.5, 176, 48],
+        "Local income tax": [833.5, 514.5, 159, 48],
+        "Locality name": [992.5, 514.5, 103, 48],
+        "Blank": [0.5, 562.5, 1097, 48]
+      }
+    },
+    "SVG W-2": {
+      "dimensions": {"width": 1327, "height": 395},
+      "fields": {
+          "Social security tips": [581.5, 0.5, 247, 43.5],
+          "Wages, tips, other comp": [829.5, 0.5, 247, 43.5],
+          "Federal income tax withheld": [1079.5, 0.5, 247, 43.5],
+          "Allocated Tips": [581.5, 42.5, 247, 41.5],
+          "Social security wages": [829.5, 42.5, 247, 41.5],
+          "Social security tax withheld": [1079.5, 42.5, 247, 41.5],
+          "Verification code": [581.5, 82.5, 247, 41.5],
+          "Medicare wages and tips": [829.5, 82.5, 247, 41.5],
+          "Medicare tax withheld": [1079.5, 82.5, 247, 41.5],
+          "Dependent care benefits": [581.5, 122.5, 247, 41.5],
+          "Nonqualified plans": [829.5, 122.5, 247, 41.5],
+          "12a": [1079.5, 122.5, 247, 41.5],
+          "12b": [1079.5, 162.5, 247, 41.5],
+          "12c": [1079.5, 203.5, 247, 41.5],
+          "12d": [1078.5, 244.5, 247, 41.5],
+          "others": [829.5, 164, 249, 144],
+          "Employer EIN": [580.5, 207, 246, 43],
+          "Employee's social security no": [582.5, 247, 246, 43],
+          "Employer's name, address, and ZIP code": [2.5, 45, 577, 122],
+          "Employee's name, address and ZIP code": [2.5, 168, 580, 143],
+          "State": [0.5, 310, 78, 58],
+          "Employer's state ID NO": [78.5, 310, 293, 60],
+          "State income tax": [583.5, 310, 197, 60],
+          "Local wages, tips": [780.5, 307, 212, 62],
+          "Local income tax": [992.5, 307, 194, 60],
+          "Locality name": [1186.5, 306, 131, 61],
+          "OMB No.": [780.5, 369, 215, 25]
+      }
+    }
+  }
+  
