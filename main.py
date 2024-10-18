@@ -241,6 +241,8 @@ import requests
 import traceback
 import re
 from typing import List
+import re
+
 
 app = FastAPI()
 
@@ -441,85 +443,84 @@ async def get_template(template_id: str):
 
 
 
-# Load environment variable for OCR API key
-OCR_API_KEY = os.getenv('OCR_API_KEY', 'c2a2cadefc88957')
-OCR_API_URL = 'https://api.ocr.space/parse/image'
+# # Load environment variable for OCR API key
+# OCR_API_KEY = os.getenv('OCR_API_KEY', 'K89973295488957')
+# OCR_API_URL = 'https://api.ocr.space/parse/image'
 
-# Utility function to resize the image
-def resize_image(image, target_width, target_height):
-    return image.resize((target_width, target_height), Image.BILINEAR)
+# # Utility function to resize the image
+# def resize_image(image, target_width, target_height):
+#     return image.resize((target_width, target_height), Image.BILINEAR)
 
-# Utility function to trim whitespace from the image
-def trim_whitespace(image):
-    bg = Image.new(image.mode, image.size, image.getpixel((0, 0)))
-    diff = ImageChops.difference(image, bg)
-    diff = ImageChops.add(diff, diff, 2.0, -100)
-    bbox = diff.getbbox()
-    if bbox:
-        return image.crop(bbox)
-    return image
+# # Utility function to trim whitespace from the image
+# def trim_whitespace(image):
+#     bg = Image.new(image.mode, image.size, image.getpixel((0, 0)))
+#     diff = ImageChops.difference(image, bg)
+#     diff = ImageChops.add(diff, diff, 2.0, -100)
+#     bbox = diff.getbbox()
+#     if bbox:
+#         return image.crop(bbox)
+#     return image
 
-# Function to send image to OCR API
-# Function to send image to OCR API
-def ocr_space_request(cropped_img):
-    buffer = io.BytesIO()
-    cropped_img.save(buffer, format="PNG")
-    img_str = base64.b64encode(buffer.getvalue()).decode()
+# # Function to send image to OCR API
+# # Function to send image to OCR API
+# def ocr_space_request(cropped_img):
+#     buffer = io.BytesIO()
+#     cropped_img.save(buffer, format="PNG")
+#     img_str = base64.b64encode(buffer.getvalue()).decode()
 
-    payload = {
-        'apikey': OCR_API_KEY,
-        'base64Image': 'data:image/png;base64,' + img_str,
-        'isTable': True,
-        'OCREngine': 2
-    }
+#     payload = {
+#         'apikey': OCR_API_KEY,
+#         'base64Image': 'data:image/png;base64,' + img_str,
+#         'isTable': True,
+#         'OCREngine': 2
+#     }
 
-    try:
-        response = requests.post(OCR_API_URL, data=payload)
-        response.raise_for_status()  # This raises an error for bad responses
-        result = response.json()
+#     try:
+#         response = requests.post(OCR_API_URL, data=payload)
+#         response.raise_for_status()  # This raises an error for bad responses
+#         result = response.json()
 
-        if 'ParsedResults' in result and result['ParsedResults']:
-            return result['ParsedResults'][0]['ParsedText']
-        else:
-            print(f"OCR API response: {result}")  # Log the raw response from the OCR API
-            return ""
+#         if 'ParsedResults' in result and result['ParsedResults']:
+#             return result['ParsedResults'][0]['ParsedText']
+#         else:
+#             print(f"OCR API response: {result}")  # Log the raw response from the OCR API
+#             return ""
 
-    except requests.exceptions.RequestException as e:
-        print(f"OCR API request failed: {e}")  # More specific error logging
-        raise HTTPException(status_code=500, detail=f"OCR API error: {e}")
+#     except requests.exceptions.RequestException as e:
+#         print(f"OCR API request failed: {e}")  # More specific error logging
+#         raise HTTPException(status_code=500, detail=f"OCR API error: {e}")
 
 
-# Function to extract text from the template fields in the image
-# Function to extract text from the template fields in the image
-# Function to extract text from the template fields in the image
-def extract_text_from_template(image, fields):
-    extracted_data = {}
-    for field_name, coords in fields.items():
-        try:
-            # Extract coordinates
-            x, y, width, height = coords
-            print(f"Extracting field: {field_name} with coordinates: {x}, {y}, {width}, {height}")
+# # Function to extract text from the template fields in the image
+
+# def extract_text_from_template(image, fields):
+#     extracted_data = {}
+#     for field_name, coords in fields.items():
+#         try:
+#             # Extract coordinates
+#             x, y, width, height = coords
+#             print(f"Extracting field: {field_name} with coordinates: {x}, {y}, {width}, {height}")
             
-            # Ensure the coordinates are within the image bounds
-            if x + width > image.width or y + height > image.height:
-                raise ValueError(f"Coordinates for {field_name} exceed image dimensions: {x}, {y}, {width}, {height}")
+#             # Ensure the coordinates are within the image bounds
+#             if x + width > image.width or y + height > image.height:
+#                 raise ValueError(f"Coordinates for {field_name} exceed image dimensions: {x}, {y}, {width}, {height}")
             
-            # Crop the image
-            cropped_img = image.crop((x, y, x + width, y + height))
-            print(f"Cropped image for {field_name} successfully.")
+#             # Crop the image
+#             cropped_img = image.crop((x, y, x + width, y + height))
+#             print(f"Cropped image for {field_name} successfully.")
 
-            # Extract text using the OCR function
-            extracted_text = ocr_space_request(cropped_img)
-            print(f"Extracted text for {field_name}: {extracted_text}")
+#             # Extract text using the OCR function
+#             extracted_text = ocr_space_request(cropped_img)
+#             print(f"Extracted text for {field_name}: {extracted_text}")
 
-            # Clean extracted text
-            extracted_data[field_name] = extracted_text
+#             # Clean extracted text
+#             extracted_data[field_name] = extracted_text
 
-        except Exception as e:
-            print(f"Error extracting {field_name}: {e}")
-            raise HTTPException(status_code=500, detail=f"Error extracting {field_name}: {e}")
+#         except Exception as e:
+#             print(f"Error extracting {field_name}: {e}")
+#             raise HTTPException(status_code=500, detail=f"Error extracting {field_name}: {e}")
     
-    return extracted_data
+#     return extracted_data
 
 
 
@@ -582,6 +583,242 @@ def extract_text_from_template(image, fields):
 #     except Exception as e:
 #         print(f"General exception: {e}")
 #         raise HTTPException(status_code=500, detail=f"Error processing the image: {e}")
+
+import traceback  # To get detailed error messages
+
+# Load environment variable for OCR API key
+OCR_API_KEY = os.getenv('OCR_API_KEY', 'K89973295488957')
+OCR_API_URL = 'https://api.ocr.space/parse/image'
+
+# Utility function to resize the image
+def resize_image(image, target_width, target_height):
+    print(f"Resizing image to {target_width}x{target_height}")
+    return image.resize((target_width, target_height), Image.BILINEAR)
+
+# Utility function to trim whitespace from the image
+def trim_whitespace(image):
+    print("Trimming whitespace from the image")
+    bg = Image.new(image.mode, image.size, image.getpixel((0, 0)))
+    diff = ImageChops.difference(image, bg)
+    diff = ImageChops.add(diff, diff, 2.0, -100)
+    bbox = diff.getbbox()
+    if bbox:
+        return image.crop(bbox)
+    return image
+
+# Function to send image to OCR API
+def ocr_space_request(cropped_img):
+    try:
+        print("Preparing image for OCR request")
+        buffer = io.BytesIO()
+        cropped_img.save(buffer, format="PNG")
+        img_str = base64.b64encode(buffer.getvalue()).decode()
+
+        payload = {
+            'apikey': OCR_API_KEY,
+            'base64Image': 'data:image/png;base64,' + img_str,
+            'isTable': True,
+            'OCREngine': 2
+        }
+
+        print("Sending OCR request to API")
+        response = requests.post(OCR_API_URL, data=payload)
+        response.raise_for_status()  # This raises an error for bad responses
+        result = response.json()
+
+        if 'ParsedResults' in result and result['ParsedResults']:
+            print("OCR response received successfully")
+            return result['ParsedResults'][0]['ParsedText']
+        else:
+            print(f"Unexpected OCR API response: {result}")
+            return ""
+
+    except requests.exceptions.RequestException as e:
+        print(f"OCR API request failed: {e}")
+        raise HTTPException(status_code=500, detail=f"OCR API error: {e}")
+
+# Function to extract text from the template fields in the image
+# def extract_text_from_template(image, fields):
+#     extracted_data = {}
+#     for field_name, coords in fields.items():
+#         try:
+#             # Extract coordinates
+#             x, y, width, height = coords
+#             print(f"Extracting field: {field_name} with coordinates: {x}, {y}, {width}, {height}")
+
+#             # Ensure the coordinates are within the image bounds
+#             if x + width > image.width or y + height > image.height:
+#                 raise ValueError(f"Coordinates for {field_name} exceed image dimensions: {x}, {y}, {width}, {height}")
+            
+#             # Crop the image
+#             cropped_img = image.crop((x, y, x + width, y + height))
+#             print(f"Cropped image for {field_name} successfully")
+
+#             # Extract text using the OCR function
+#             extracted_text = ocr_space_request(cropped_img)
+#             print(f"Extracted text for {field_name}: {extracted_text}")
+
+#             # Clean extracted text
+#             extracted_data[field_name] = extracted_text.strip()
+
+#         except Exception as e:
+#             print(f"Error extracting {field_name}: {e}")
+#             raise HTTPException(status_code=500, detail=f"Error extracting {field_name}: {e}")
+
+#     return extracted_data
+import re
+
+# Function to extract text from the template fields in the image
+def extract_text_from_template(image, fields):
+    extracted_data = {}
+    for field_name, coords in fields.items():
+        try:
+            # Extract coordinates
+            x, y, width, height = coords
+            print(f"Extracting field: {field_name} with coordinates: {x}, {y}, {width}, {height}")
+            
+            # Ensure the coordinates are within the image bounds
+            if x + width > image.width or y + height > image.height:
+                raise ValueError(f"Coordinates for {field_name} exceed image dimensions: {x}, {y}, {width}, {height}")
+            
+            # Crop the image
+            cropped_img = image.crop((x, y, x + width, y + height))
+            print(f"Cropped image for {field_name} successfully.")
+
+            # Extract text using the OCR function
+            extracted_text = ocr_space_request(cropped_img)
+            print(f"Extracted text for {field_name}: {extracted_text}")
+
+            # Clean extracted text
+            extracted_data[field_name] = extracted_text
+
+        except Exception as e:
+            print(f"Error extracting {field_name}: {e}")
+            raise HTTPException(status_code=500, detail=f"Error extracting {field_name}: {e}")
+    
+    return extracted_data
+
+@app.post("/extract_text/")
+async def extract_text_from_image_and_template(
+    file: UploadFile = File(...),
+    template: str = Form(...)
+):
+    try:
+        print(f"Received file: {file.filename}, content type: {file.content_type}")
+        print(f"Template received: {template}")
+
+        # Step 1: Validate file type (allow only PNG or JPEG)
+        if file.content_type not in ["image/png", "image/jpeg"]:
+            raise HTTPException(status_code=400, detail="Invalid file type. Please upload a PNG or JPEG image.")
+        print("File type is valid.")
+
+        # Step 2: Load the image
+        try:
+            image = Image.open(file.file).convert("RGB")
+            print("Image loaded successfully.")
+        except Exception as e:
+            print(f"Error loading image: {traceback.format_exc()}")
+            raise HTTPException(status_code=500, detail=f"Failed to open image: {e}")
+
+        # Step 3: Parse the template and extract text based on the coordinates
+        try:
+            # Convert the template string to a dictionary
+
+            template_dict = eval(template)
+            print(f"Template parsed successfully: {template_dict}")
+
+            if 'fields' not in template_dict or 'dimensions' not in template_dict:
+                raise HTTPException(status_code=400, detail="Invalid template format: Missing 'fields' or 'dimensions'.")
+            fields = template_dict['fields']
+
+            # Step 4: Extract text using the field coordinates
+            extracted_data = extract_text_from_template(image, fields)
+            print(f"Text extraction successful. Extracted Data: {extracted_data}")
+
+        except Exception as e:
+            print(f"Error during template processing or text extraction: {traceback.format_exc()}")
+            raise HTTPException(status_code=500, detail=f"Error processing template or extracting text: {e}")
+
+        # Step 5: Return the extracted data
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*"
+        }
+        return JSONResponse(content={"extracted_data": extracted_data}, headers=headers)
+
+    except Exception as e:
+        print(f"General exception: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Error processing the image: {e}")
+
+# @app.post("/extract_text/")
+# async def extract_text_from_image_and_template(
+#     file: UploadFile = File(...),
+#     template: str = Form(...)
+# ):
+#     try:
+#         print(f"Received file: {file.filename}, content type: {file.content_type}")
+#         print(f"Template received: {template}")
+
+#         # Step 1: Validate file type (allow only PNG or JPEG)
+#         if file.content_type not in ["image/png", "image/jpeg"]:
+#             raise HTTPException(status_code=400, detail="Invalid file type. Please upload a PNG or JPEG image.")
+#         print("File type is valid.")
+
+#         # Step 2: Load the image
+#         try:
+#             image = Image.open(file.file).convert("RGB")
+#             print("Image loaded successfully.")
+#         except Exception as e:
+#             print(f"Error loading image: {traceback.format_exc()}")
+#             raise HTTPException(status_code=500, detail=f"Failed to open image: {e}")
+
+#         try:
+
+#             # Convert the template string to a dictionary
+#             template_dict = eval(template)
+#             print(f"Template parsed successfully: {template_dict}")
+
+#             # Ensure 'fields' and 'dimensions' are present in the template
+#             if 'fields' not in template_dict or 'dimensions' not in template_dict:
+#                 raise HTTPException(status_code=400, detail="Invalid template format: Missing 'fields' or 'dimensions'.")
+
+#             fields = template_dict['fields']
+#             dimensions = template_dict['dimensions']
+
+#             # Resize the image to match the template dimensions
+#             print(f"Image resized to: {dimensions['width']} x {dimensions['height']}")
+
+#         except Exception as e:
+#             print(f"Error processing template: {traceback.format_exc()}")
+#             raise HTTPException(status_code=500, detail=f"Error processing template: {e}")
+
+#         # Step 4: Extract text from the image based on the template fields
+#         try:
+#             print("Extracting text from the image based on template fields")
+#             extracted_data = extract_text_from_template(image, fields)
+#             print(f"Text extraction successful. Extracted Data: {extracted_data}")
+#         except Exception as e:
+#             print(f"Error during text extraction: {traceback.format_exc()}")
+#             raise HTTPException(status_code=500, detail=f"Error extracting text: {e}")
+
+#         # Step 5: Return the extracted data
+#         headers = {
+#             "Access-Control-Allow-Origin": "*",
+#             "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+#             "Access-Control-Allow-Headers": "*"
+#         }
+#         return JSONResponse(content={"extracted_data": extracted_data}, headers=headers)
+
+#     except Exception as e:
+#         print(f"General exception: {traceback.format_exc()}")
+#         raise HTTPException(status_code=500, detail=f"Error processing the image: {e}")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+    
 # @app.post("/extract_text/")
 # async def extract_text_from_image_and_template(
 #     file: UploadFile = File(...),
@@ -636,75 +873,9 @@ def extract_text_from_template(image, fields):
 #         print(f"General exception: {traceback.format_exc()}")
 #         raise HTTPException(status_code=500, detail=f"Error processing the image: {e}")
 
-def extract_values_from_fields(extracted_data):
-    return list(extracted_data.values())  # Returns only the values as a list
-
-@app.post("/extract_text/")
-async def extract_text_from_image_and_template(
-    file: UploadFile = File(...),
-    template: str = Form(...)
-):
-    try:
-        print(f"Received file: {file.filename}, content type: {file.content_type}")
-        print(f"Template received: {template}")
-
-        # Step 1: Validate file type (allow only PNG or JPEG)
-        if file.content_type not in ["image/png", "image/jpeg"]:
-            print("Invalid file type.")
-            raise HTTPException(status_code=400, detail="Invalid file type. Please upload a PNG or JPEG image.")
-        print("File type is valid.")
-
-        # Step 2: Load the image
-        try:
-            image = Image.open(file.file).convert("RGB")
-            print("Image loaded successfully.")
-        except Exception as e:
-            print(f"Error loading image: {traceback.format_exc()}")
-            raise HTTPException(status_code=500, detail=f"Failed to open image: {e}")
-
-        # Step 3: Parse the template and extract text based on the coordinates
-        try:
-            print(f"Raw template string: {template}")
-
-            template_dict = eval(template)
-            print(f"Template parsed successfully: {template_dict}")
-
-            if 'fields' in template_dict:
-                fields = template_dict['fields']
-                print(f"Fields found in template: {fields}")
-            elif 'selectedTemplate' in template_dict and 'fields' in template_dict['selectedTemplate']:
-                fields = template_dict['selectedTemplate']['fields']
-                print(f"Fields found in selectedTemplate: {fields}")
-            else:
-                print("Invalid template format: Missing 'fields'.")
-                raise HTTPException(status_code=400, detail="Invalid template format: Missing 'fields'.")
-
-            # Step 4: Extract text using the field coordinates (replace with actual extraction logic)
-            extracted_data = extract_text_from_template(image, fields)
-            print(f"Text extraction successful. Extracted Data: {extracted_data}")
-
-            # Step 5: Extract only the values from the extracted data
-            extracted_values = extract_values_from_fields(extracted_data)
-            print(f"Extracted values: {extracted_values}")
-
-        except Exception as e:
-            print(f"Error during template processing or text extraction: {traceback.format_exc()}")
-            raise HTTPException(status_code=500, detail=f"Error processing template or extracting text: {e}")
-
-        # Step 6: Return the extracted values
-        headers = {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-            "Access-Control-Allow-Headers": "*"
-        }
-        print("Returning extracted values.")
-        return JSONResponse(content={"extracted_values": extracted_values}, headers=headers)
-
-    except Exception as e:
-        print(f"General exception: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=f"Error processing the image: {e}")
 
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
