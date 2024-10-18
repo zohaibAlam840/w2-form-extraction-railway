@@ -404,7 +404,13 @@ async def crop_image(request: CropRequest):
         cropped_image.save(buffer, format="PNG")
         cropped_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
 
-        return {"cropped_image": cropped_base64}
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*"
+        }
+
+        return JSONResponse(content={"cropped_image": cropped_base64}, headers=headers)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
