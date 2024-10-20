@@ -1,35 +1,27 @@
-# Start from the official Python 3.9 slim image
 FROM python:3.9-slim
 
-# Set environment variables to avoid interaction during installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install required system dependencies
+# Install dependencies for pdf2image, poppler, and other libraries
 RUN apt-get update && apt-get install -y \
     poppler-utils \
     libpoppler-cpp-dev \
     gcc \
     build-essential \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory inside the container
 WORKDIR /main
 
-# Copy the requirements.txt file first to leverage Docker caching
+# Copy the requirements file and install dependencies
 COPY requirements.txt /main/
-
-# Upgrade pip and install the Python dependencies
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code
+# Copy the rest of your application code
 COPY . /main
 
-# Expose port 8000 for FastAPI
-# Expose port for FastAPI
 EXPOSE 8000
 
-# Define environment variable to specify FastAPI host and port.
-ENV PORT=8000
-
-# Run the application.
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Use $PORT environment variable instead of hardcoding 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "$PORT"]
