@@ -285,20 +285,27 @@ def detect_largest_box(image, threshold=240):
     largest_contour = max(contours, key=cv2.contourArea)
     x, y, w, h = cv2.boundingRect(largest_contour)
     return (x, y, w, h)
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 @app.post("/upload/")
 async def upload(file: UploadFile = File(...)):
-    global image_data, box_coords
-
+    logging.info(f"Received file: {file.filename}")
     try:
         contents = await file.read()
+        logging.info(f"File size: {len(contents)} bytes")
+        
         if file.content_type == "application/pdf":
+            logging.info("Processing as PDF")
             images = convert_from_bytes(contents)
+            logging.info(f"PDF has {len(images)} pages")
             image = images[0]
         else:
+            logging.info("Processing as Image")
             image = Image.open(BytesIO(contents)).convert("RGB")
 
-        image_data = image
+        logging.info("Detecting box coordinates")
         box_coords = detect_largest_box(image)
         
         if box_coords is None:
@@ -308,40 +315,15 @@ async def upload(file: UploadFile = File(...)):
         image.save(buffer, format="PNG")
         base64_image = base64.b64encode(buffer.getvalue()).decode('utf-8')
 
+        logging.info("Upload successful")
         return {"box": box_coords, "image": base64_image}
+
     except UnidentifiedImageError:
+        logging.error("Unidentified image error")
         raise HTTPException(status_code=400, detail="Invalid image file")
     except Exception as e:
+        logging.error(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
-
-@app.post("/adjust_box/")
-async def adjust_box(action: str, dimension: str):
-    global box_coords
-    if box_coords is None:
-        raise HTTPException(status_code=400, detail="No box coordinates available")
-    
-    adjustment_value = 10  # Fixed amount for adjustment
-
-    if dimension not in ["width", "height"] or action not in ["increase", "decrease"]:
-        raise HTTPException(status_code=400, detail="Invalid adjustment parameters")
-    
-    if action == "increase":
-        box_coords = (
-            box_coords[0], 
-            box_coords[1], 
-            box_coords[2] + adjustment_value if dimension == "width" else box_coords[2],
-            box_coords[3] + adjustment_value if dimension == "height" else box_coords[3]
-        )
-    elif action == "decrease":
-        box_coords = (
-            box_coords[0], 
-            box_coords[1], 
-            max(10, box_coords[2] - adjustment_value) if dimension == "width" else box_coords[2],
-            max(10, box_coords[3] - adjustment_value) if dimension == "height" else box_coords[3]
-        )
-
-    return {"box": box_coords}
-
 
 # Define a Pydantic model for box coordinates
 class BoxCoordinates(BaseModel):
