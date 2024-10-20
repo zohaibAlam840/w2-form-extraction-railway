@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.9-slim as build-stage
+FROM python:3.12.7-slim as build-stage
 
 # Set environment variables to avoid interaction
 ENV DEBIAN_FRONTEND=noninteractive
