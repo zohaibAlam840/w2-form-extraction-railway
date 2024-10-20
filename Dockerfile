@@ -1,3 +1,9 @@
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim as build-stage
+
+# Set environment variables to avoid interaction
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     poppler-utils \
