@@ -314,9 +314,16 @@ async def upload(file: UploadFile = File(...)):
         buffer = BytesIO()
         image.save(buffer, format="PNG")
         base64_image = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*"
+        }
+
 
         logging.info("Upload successful")
-        return {"box": box_coords, "image": base64_image}
+        return JSONResponse(content={"box": box_coords, "image": base64_image}, headers=headers)
 
     except UnidentifiedImageError:
         logging.error("Unidentified image error")
