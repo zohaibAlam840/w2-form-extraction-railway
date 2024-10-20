@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /main
 
 # Copy the current directory contents into the container
-COPY . /main
+COPY ./main.py
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
